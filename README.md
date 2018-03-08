@@ -111,6 +111,11 @@ ax1.legend(handles=[bbc, cbs, cnn, fox, nyt])
 ![png](output_11_1.png)
 
 
+
+```python
+![](sentiment_scatter.png)
+```
+
 ### Bar Chart 
 Each bar represents each outlet's average score over the last five hundred tweets. The goal is to chart whether they were positive, negative, or neutral overall.
 
@@ -147,5 +152,7 @@ ax2.bar(users, [bbc_avg, cbs_avg, cnn_avg, fox_avg, nyt_avg], color=colors, edge
 
 
 
-![png](output_14_1.png)
+![png](output_15_1.png)
 
+
+![](bar_averages.png)
