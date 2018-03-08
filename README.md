@@ -1,7 +1,13 @@
 
+## News Mood
+This project analyzes the last five hundred tweets of five major news oulets: BBC World, CBS, CNN, Fox News, and The New York Times. It uses the [Vader Sentiment Analyzer](https://github.com/cjhutto/vaderSentiment), [Tweepy](https://github.com/tweepy/tweepy), [Pandas](https://pandas.pydata.org/), and [Matplotlib](https://matplotlib.org/).
+
+The project contains two helper functions which are defined in "process_tweets.py". Vader analysis is declared and initialized in that file.
+
 
 ```python
 import config as cfg
+import process_tweets as pt
 
 import datetime
 import os
@@ -15,24 +21,20 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as pch
 ```
 
-
-```python
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-analyzer = SentimentIntensityAnalyzer()
-```
+### Initialize Tweepy
 
 
 ```python
-# Tweepy Authentication
 auth = tweepy.OAuthHandler(cfg.API_KEY, cfg.API_SECRET)
 auth.set_access_token(cfg.ACCESS_TOKEN, cfg.ACCESS_TOKEN_SECRET)
 api = tweepy.API(auth, parser=tweepy.parsers.JSONParser()) 
 ```
 
+### Initialize the DataFrame
+This creates the structure of the data frame and then sets the order of the columns.
+
 
 ```python
-users = ['BBCWorld', 'CBSNews', 'CNN', 'FoxNews', 'nytimes']
-
 tweet_df = pd.DataFrame({
     'Source': '',
     'Text': '',
@@ -42,52 +44,36 @@ tweet_df = pd.DataFrame({
     'Sent.Neutral': '',
     'Sent.Negative': ''
 }, index=[0])
+
 tweet_df = tweet_df[['Source', 'Text', 'Date', 'Sent.Compound', 'Sent.Positive', 'Sent.Neutral', 'Sent.Negative']]
 ```
 
-
-```python
-def add_to_df(user, tweet, write_row):
-    sent_score = analyzer.polarity_scores(tweet['text'])
-    tweet_df.loc[write_row, 'Source'] = user
-    tweet_df.loc[write_row, 'Text'] = tweet['text']
-    tweet_df.loc[write_row, 'Date'] = tweet['created_at'] 
-    tweet_df.loc[write_row, 'Sent.Compound'] = sent_score['compound']
-    tweet_df.loc[write_row, 'Sent.Positive'] = sent_score['pos']
-    tweet_df.loc[write_row, 'Sent.Neutral'] = sent_score['neu']
-    tweet_df.loc[write_row, 'Sent.Negative'] = sent_score['neg']
-```
+### Get All the Tweets
+This cell loops through the users and then calls retrieve_tweets from the "process_tweets.py" file. All writing to the data frame is handled inside that file.
 
 
 ```python
-def retrieve_tweets(api, user, file_name, write_row):
-    for curr_page in range(5):
+users = ['BBCWorld', 'CBSNews', 'CNN', 'FoxNews', 'nytimes']
 
-        tweets = api.user_timeline(user, page=curr_page)
-        
-        for tweet in tweets:
-            add_to_df(user, tweet, write_row)
-            write_row += 1
-```
-
-
-```python
 for user in users:
     write_rows = [0, 100, 200, 300, 400]
     user_name = '@' + user
-    retrieve_tweets(api, user_name, user, write_rows[users.index(user)])
+    pt.retrieve_tweets(api, user_name, user, tweet_df, write_rows[users.index(user)])
 ```
+
+### Write the Data Frame to a CSV
 
 
 ```python
 tweet_df.to_csv(os.path.join('csv', 'twitter_moods.csv'))
 ```
 
+### Scatter Plot of the Last Five Hundred Tweets
+The sentiment analyzer rates the tweets from a range of -1 to 1, negative to positive respectively. A score of zero is neutral.
+
 
 ```python
 # Plots
-
-# Date for both plots
 now = datetime.datetime.now()
 
 fig, ax1 = plt.subplots(figsize=(10, 8))
@@ -117,13 +103,16 @@ ax1.legend(handles=[bbc, cbs, cnn, fox, nyt])
 
 
 
-    <matplotlib.legend.Legend at 0x117603e80>
+    <matplotlib.legend.Legend at 0x11076b198>
 
 
 
 
-![png](output_8_1.png)
+![png](output_11_1.png)
 
+
+### Bar Chart 
+Each bar represents each outlet's average score over the last five hundred tweets. The goal is to chart whether they were positive, negative, or neutral overall.
 
 
 ```python
@@ -158,5 +147,5 @@ ax2.bar(users, [bbc_avg, cbs_avg, cnn_avg, fox_avg, nyt_avg], color=colors, edge
 
 
 
-![png](output_10_1.png)
+![png](output_14_1.png)
 
