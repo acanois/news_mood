@@ -19,8 +19,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.patches as pch
-
-%matplotlib inline
+import seaborn as sns
 ```
 
 ### Initialize Tweepy
@@ -70,47 +69,96 @@ for user in users:
 tweet_df.to_csv(os.path.join('csv', 'twitter_moods.csv'))
 ```
 
-### Scatter Plot of the Last Five Hundred Tweets
-The sentiment analyzer rates the tweets from a range of -1 to 1, negative to positive respectively. A score of zero is neutral.
-
 
 ```python
-# Plots
-now = datetime.datetime.now()
-
-fig, ax1 = plt.subplots(figsize=(10, 8))
-ax1.set_title('Sentiment Analysis of Media Tweets {}/{}/{}'.format(now.month, now.day, now.year))
-ax1.set_xlabel('Number of Tweets')
-ax1.set_ylabel('Sentiment (Neg: -1.0, Pos: 1.0)')
-ax1.grid(True)
-    
-colors = [
-    (0.8, 0.2, 0.2),
-    (0.2, 0.8, 0.2),
-    (0.2, 0.2, 0.8),
-    (0.2, 0.8, 0.8),
-    (0.8, 0.2, 0.8)
-]
-    
-ax1.scatter(range(len(tweet_df['Sent.Compound'])), tweet_df['Sent.Compound'], color=colors)
-
-bbc = pch.Patch(color=colors[0], label='BBC')
-cbs = pch.Patch(color=colors[1], label='CBS')
-cnn = pch.Patch(color=colors[2], label='CNN')
-fox = pch.Patch(color=colors[3], label='FOX')
-nyt = pch.Patch(color=colors[4], label='NYT')
-ax1.legend(handles=[bbc, cbs, cnn, fox, nyt])
+tweet_df.head()
 ```
 
 
 
 
-    <matplotlib.legend.Legend at 0x109916da0>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
 
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
 
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Source</th>
+      <th>Text</th>
+      <th>Date</th>
+      <th>Sent.Compound</th>
+      <th>Sent.Positive</th>
+      <th>Sent.Neutral</th>
+      <th>Sent.Negative</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>@BBCWorld</td>
+      <td>Rhino census begins in India's Kaziranga Natio...</td>
+      <td>Mon Mar 26 15:38:13 +0000 2018</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>@BBCWorld</td>
+      <td>Facebook faces Federal Trade Commission privac...</td>
+      <td>Mon Mar 26 15:38:13 +0000 2018</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>@BBCWorld</td>
+      <td>José Filomeno dos Santos named suspect in $500...</td>
+      <td>Mon Mar 26 15:21:15 +0000 2018</td>
+      <td>-0.7184</td>
+      <td>0</td>
+      <td>0.6</td>
+      <td>0.4</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>@BBCWorld</td>
+      <td>RT @BBCNews: UK PM Theresa May says 18 countri...</td>
+      <td>Mon Mar 26 15:17:51 +0000 2018</td>
+      <td>0.0516</td>
+      <td>0.115</td>
+      <td>0.778</td>
+      <td>0.107</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>@BBCWorld</td>
+      <td>Marvia Malik - Pakistan TV airs first transgen...</td>
+      <td>Mon Mar 26 15:12:30 +0000 2018</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
 
-
-![png](output_11_1.png)
 
 
 ### Bar Chart 
@@ -133,21 +181,19 @@ nyt_avg = nyt_df['Sent.Compound'].mean()
 
 
 ```python
-fig, ax2 = plt.subplots(figsize=(10, 8))
-plt.title('Overall Media Sentiment Based on Twitter {}/{}/{}'.format(now.month, now.day, now.year))
-ax2.set_ylabel('Tweet Polarity')
-ax2.set_ylim(-0.20, 0.05)
-ax2.set_facecolor((0.85, 0.85, 0.85))
-ax2.bar(users, [bbc_avg, cbs_avg, cnn_avg, fox_avg, nyt_avg], color=colors, edgecolor='k')
+fig, ax = plt.subplots(figsize=(10, 8))
+ax = sns.barplot(users, [bbc_avg, cbs_avg, cnn_avg, fox_avg, nyt_avg])
+ax.set_title('Overall Media Sentiment Based on Twitter {}/{}/{}'.format(now.month, now.day, now.year))
+ax.set_ylim(-1.0, 1.0)
 ```
 
 
 
 
-    <Container object of 5 artists>
+    (-1.0, 1.0)
 
 
 
 
-![png](output_14_1.png)
+![png](output_13_1.png)
 
